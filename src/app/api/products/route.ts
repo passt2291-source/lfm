@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
 import { getUserFromRequest } from "@/lib/auth";
+import { Product as ProductType } from "@/types";
+
+// Simple in-memory cache for products
+const productsCache = new Map<string, { data: { products: ProductType[]; currentPage: number; totalPages: number }; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Cache key generator
+const generateCacheKey = (params: URLSearchParams) => {
+  const relevantParams = ['search', 'category', 'location', 'minPrice', 'maxPrice', 'organic', 'page', 'limit', 'sortBy', 'sortOrder'];
+  const cacheKey = relevantParams.map(param => `${param}:${params.get(param) || ''}`).join('|');
+  return cacheKey;
+};
 
 // Define a flexible interface for the MongoDB query filter
 interface ProductFilter {
@@ -25,9 +37,23 @@ interface SortOptions {
 // ===================================================================
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const cacheKey = generateCacheKey(searchParams);
+
+    // Check cache first
+    const cached = productsCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      console.log("Serving products from cache");
+      return NextResponse.json(cached.data, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          'X-Cache-Status': 'HIT'
+        }
+      });
+    }
+
     await dbConnect();
 
-    const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category");
     const location = searchParams.get("location");
@@ -91,10 +117,33 @@ export async function GET(req: NextRequest) {
       .skip(skip)
       .limit(limit);
 
-    return NextResponse.json({
+    const responseData = {
       products,
       currentPage: page,
       totalPages: totalPages,
+    };
+
+    // Cache the response
+    productsCache.set(cacheKey, {
+      data: responseData,
+      timestamp: Date.now()
+    });
+
+    // Clean up old cache entries periodically
+    if (productsCache.size > 100) {
+      const cutoff = Date.now() - CACHE_DURATION;
+      for (const [key, value] of productsCache.entries()) {
+        if (value.timestamp < cutoff) {
+          productsCache.delete(key);
+        }
+      }
+    }
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'X-Cache-Status': 'MISS'
+      }
     });
   } catch (error: unknown) {
     console.error("GET /api/products error:", error);

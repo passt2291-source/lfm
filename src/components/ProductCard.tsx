@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { Star, MapPin, Leaf, ShoppingCart } from 'lucide-react';
 import { Product } from '@/types';
@@ -12,18 +12,27 @@ interface ProductCardProps {
   product: Product;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const handleAddToCart = async () => {
+  // Memoize expensive calculations
+  const isOutOfStock = useMemo(() => product.quantity === 0, [product.quantity]);
+  const formattedPrice = useMemo(() => product.price.toFixed(2), [product.price]);
+  const formattedRating = useMemo(() => product.rating.toFixed(1), [product.rating]);
+  const locationString = useMemo(
+    () => `${product.farmLocation.city}, ${product.farmLocation.state}`,
+    [product.farmLocation.city, product.farmLocation.state]
+  );
+
+  const handleAddToCart = useCallback(async () => {
     if (!user) {
       toast.error('Please login to add items to cart');
       return;
     }
 
-    if (product.quantity === 0) {
+    if (isOutOfStock) {
       toast.error('Product is out of stock');
       return;
     }
@@ -37,7 +46,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, isOutOfStock, addToCart, product]);
 
   return (
     <div className="card hover:shadow-lg transition-shadow duration-200">
@@ -68,7 +77,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {product.rating > 0 && (
           <div className="absolute top-2 right-2 bg-white bg-opacity-90 px-2 py-1 rounded-full text-xs flex items-center gap-1">
             <Star className="h-3 w-3 text-yellow-500 fill-current" />
-            {product.rating.toFixed(1)}
+            {formattedRating}
           </div>
         )}
       </div>
@@ -86,14 +95,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Location */}
         <div className="flex items-center text-gray-500 text-sm mb-3">
           <MapPin className="h-4 w-4 mr-1" />
-          {product.farmLocation.city}, {product.farmLocation.state}
+          {locationString}
         </div>
 
         {/* Price and Quantity */}
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-2xl font-bold text-primary-600">
-              ${product.price.toFixed(2)}
+              ${formattedPrice}
             </span>
             <span className="text-gray-500 text-sm ml-1">/{product.unit}</span>
           </div>
@@ -109,9 +118,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Add to Cart Button */}
         <button
           onClick={handleAddToCart}
-          disabled={loading || product.quantity === 0}
+          disabled={loading || isOutOfStock}
           className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
-            product.quantity === 0
+            isOutOfStock
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : loading
               ? 'bg-primary-400 text-white cursor-wait'
@@ -119,9 +128,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           }`}
         >
           <ShoppingCart className="h-4 w-4" />
-          {loading ? 'Adding...' : product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+          {loading ? 'Adding...' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
         </button>
       </div>
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(ProductCard);

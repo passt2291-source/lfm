@@ -1,9 +1,10 @@
-"use client";
-
 import CategoriesSection from "@/components/CategoriesSection";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import FarmerHeroSection from "@/components/Hero";
+
+// Enable static generation for better performance
+export const dynamic = 'force-static';
 
 export default function Home() {
   return (

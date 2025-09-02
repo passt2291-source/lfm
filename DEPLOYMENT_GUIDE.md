@@ -46,7 +46,7 @@ Before setting up the main webhook, let's test if your endpoint is accessible:
 - Go to Stripe Dashboard > Developers > Webhooks
 - Click "Add endpoint"
 - URL: `https://your-vercel-domain.vercel.app/api/webhooks/stripe`
-- Events to send: `payment_intent.succeeded`
+- Events to send: `charge.succeeded`
 - **Important**: Make sure the URL is exactly correct with your Vercel domain
 
 ### 3. Get Webhook Secret
@@ -56,7 +56,7 @@ Before setting up the main webhook, let's test if your endpoint is accessible:
 
 ### 4. Test the Webhook
 - In Stripe Dashboard, go to the webhook you created
-- Click "Send test webhook" and select "payment_intent.succeeded"
+- Click "Send test webhook" and select "charge.succeeded"
 - Check Vercel function logs to see if the webhook is received
 - Look for logs starting with "[Webhook] Stripe webhook received"
 

@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Webhook] Event type: ${event.type}`);
 
-    if (event.type === "payment_intent.succeeded") {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const orderId = paymentIntent.metadata.orderId;
+    if (event.type === "charge.succeeded") {
+      const charge = event.data.object as Stripe.Charge;
+      const orderId = charge.metadata.orderId;
 
       if (!orderId) {
         console.error(

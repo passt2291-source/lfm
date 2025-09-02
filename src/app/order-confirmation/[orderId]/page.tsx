@@ -7,17 +7,23 @@ import Header from "@/components/Header";
 import { CheckCircle } from "lucide-react";
 
 export default function OrderConfirmationPage() {
-  const { clearCart } = useCart();
+  const { clearCart, getTotalItems } = useCart();
   const router = useRouter();
   const params = useParams();
 
   useEffect(() => {
-    try {
-      clearCart();
-    } catch (err) {
-      console.log("Failed to clear the cart", err);
+    // Only clear cart if it still has items (in case it wasn't cleared during checkout)
+    if (getTotalItems() > 0) {
+      try {
+        clearCart();
+        console.log("Cart cleared on order confirmation page");
+      } catch (err) {
+        console.log("Failed to clear the cart", err);
+      }
+    } else {
+      console.log("Cart already cleared, skipping clear operation");
     }
-  }, [clearCart]);
+  }, [clearCart, getTotalItems]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -13,6 +13,7 @@ import {
 import { CheckCircle, AlertCircle } from "lucide-react";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
 
 export const dynamic = "force-dynamic";
@@ -197,13 +198,14 @@ export default function CheckoutPage() {
 function CheckoutPaymentForm({ orderId }: { orderId: string }) {
   const stripe = useStripe();
   const elements = useElements();
+  const { clearCart } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
-    
+
     setSubmitting(true);
     setError(null);
 
@@ -217,6 +219,14 @@ function CheckoutPaymentForm({ orderId }: { orderId: string }) {
     if (submitError) {
       setError(submitError.message || "An unexpected error occurred.");
       setSubmitting(false);
+    } else {
+      // Clear cart immediately after successful payment confirmation
+      try {
+        clearCart();
+        console.log("Cart cleared after successful payment");
+      } catch (err) {
+        console.error("Failed to clear cart after payment:", err);
+      }
     }
   };
 

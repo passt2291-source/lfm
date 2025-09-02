@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
 
         for (const item of order.items) {
           const product = item.product;
-          // const product = item.product;
           await Product.findByIdAndUpdate(product._id, {
             $inc: { quantity: -item.quantity },
           });

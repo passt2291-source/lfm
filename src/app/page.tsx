@@ -16,7 +16,6 @@ export default function Home() {
           <CategoriesSection />
         </div>
       </main>
-      <p>sadlkjfhsalkdfh lsjkdf</p>
       <Footer />
     </div>
   );

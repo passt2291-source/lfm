@@ -1,18 +1,16 @@
 "use client";
 
 import { Product } from "@/types";
-import { useState, useEffect, useCallback, FormEvent, Suspense } from "react";
+import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Search, Filter, Plus, Edit, Trash2, Eye, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import Header from "@/components/Header";
-// Lazy load the FilterSidebar
-import { lazy } from "react";
+// Import FilterSidebar normally to avoid build issues
 import toast from "react-hot-toast";
-
-const FilterSidebar = lazy(() => import("@/components/FilterSidebar"));
+import FilterSidebar from "@/components/FilterSidebar";
 
 // A custom hook for debouncing
 const useDebounce = (value: string, delay: number) => {
@@ -218,15 +216,12 @@ export default function ProductsPage() {
             </select>
           </div>
           {showFilters && (
-            // Use Suspense to show a fallback while the lazy-loaded component is loading
-            <Suspense fallback={<div>Loading filters...</div>}>
-              <div className="mt-4">
-                <FilterSidebar
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-            </Suspense>
+            <div className="mt-4">
+              <FilterSidebar
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
           )}
         </div>
 

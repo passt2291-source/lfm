@@ -48,10 +48,6 @@ const nextConfig = {
   // Experimental features for performance
   experimental: {
     serverComponentsExternalPackages: ['mongoose'],
-    // Enable faster builds
-    optimizePackageImports: ['lucide-react', '@headlessui/react'],
-    // Enable faster CSS processing
-    optimizeCss: true,
   },
 
   // CDN and caching headers

@@ -9,15 +9,41 @@ const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
-  console.log("post aaya");
+  console.log("[Webhook] Stripe webhook received");
+  
   try {
-    const rawBody = await req.text();
-    const signature = req.headers.get("stripe-signature") as string;
-    const event = stripe.webhooks.constructEvent(
-      rawBody,
-      signature,
-      webhookSecret
-    );
+    // Get raw body as buffer for webhook signature verification
+    const body = await req.text();
+    const signature = req.headers.get("stripe-signature");
+
+    if (!signature) {
+      console.error("[Webhook] Missing stripe-signature header");
+      return NextResponse.json(
+        { error: "Missing stripe-signature header" },
+        { status: 400 }
+      );
+    }
+
+    if (!webhookSecret) {
+      console.error("[Webhook] Missing STRIPE_WEBHOOK_SECRET environment variable");
+      return NextResponse.json(
+        { error: "Webhook secret not configured" },
+        { status: 500 }
+      );
+    }
+
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } catch (err) {
+      console.error("[Webhook] Signature verification failed:", err);
+      return NextResponse.json(
+        { error: `Webhook signature verification failed: ${err}` },
+        { status: 400 }
+      );
+    }
+
+    console.log(`[Webhook] Event type: ${event.type}`);
 
     if (event.type === "payment_intent.succeeded") {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;

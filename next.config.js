@@ -32,12 +32,9 @@ const nextConfig = {
       },
     ],
   },
-  env: {
-    MONGODB_URI: process.env.MONGODB_URI,
-    JWT_SECRET: process.env.JWT_SECRET,
-    STRIPE_PRIVATE_KEY: process.env.STRIPE_PRIVATE_KEY,
-    STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
-    AUTH_SECRET: process.env.AUTH_SECRET,
+  // Remove env config - let Vercel handle environment variables directly
+  experimental: {
+    serverComponentsExternalPackages: ['mongoose'],
   },
 };
 

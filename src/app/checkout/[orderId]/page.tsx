@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 
 export const dynamic = "force-dynamic";
 
-const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || "";
+const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 interface Order {

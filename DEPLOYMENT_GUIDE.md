@@ -37,16 +37,28 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_... (alternative name for public key)
 
 ## Stripe Webhook Configuration
 
-### 1. Create Webhook Endpoint in Stripe Dashboard
+### 1. Test Webhook Endpoint First
+Before setting up the main webhook, let's test if your endpoint is accessible:
+- Visit: `https://your-vercel-domain.vercel.app/api/webhooks/stripe/test`
+- You should see a JSON response confirming the endpoint is working
+
+### 2. Create Webhook Endpoint in Stripe Dashboard
 - Go to Stripe Dashboard > Developers > Webhooks
 - Click "Add endpoint"
 - URL: `https://your-vercel-domain.vercel.app/api/webhooks/stripe`
 - Events to send: `payment_intent.succeeded`
+- **Important**: Make sure the URL is exactly correct with your Vercel domain
 
-### 2. Get Webhook Secret
+### 3. Get Webhook Secret
 - After creating the webhook, click on it
 - Copy the "Signing secret" (starts with `whsec_`)
 - Add this as `STRIPE_WEBHOOK_SECRET` in Vercel environment variables
+
+### 4. Test the Webhook
+- In Stripe Dashboard, go to the webhook you created
+- Click "Send test webhook" and select "payment_intent.succeeded"
+- Check Vercel function logs to see if the webhook is received
+- Look for logs starting with "[Webhook] Stripe webhook received"
 
 ## Deployment Steps
 

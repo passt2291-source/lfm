@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
         message: `You have a new order (#${savedOrder._id
           .toString()
           .slice(-6)}) containing your products.`,
-        link: `/orders/${savedOrder._id}`,
+        link: `/${savedOrder._id}`,
       });
     }
 
@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
       message: `Your order #${savedOrder._id
         .toString()
         .slice(-6)} has been placed successfully!`,
-      link: `/orders/${savedOrder._id}`,
+      link: `/${savedOrder._id}`,
     });
 
     return NextResponse.json({

@@ -8,7 +8,6 @@ import { Product as ProductType } from "@/types";
 const productsCache = new Map<string, { data: { products: ProductType[]; currentPage: number; totalPages: number }; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-// Cache key generator
 const generateCacheKey = (params: URLSearchParams) => {
   const relevantParams = ['search', 'category', 'location', 'minPrice', 'maxPrice', 'organic', 'page', 'limit', 'sortBy', 'sortOrder'];
   const cacheKey = relevantParams.map(param => `${param}:${params.get(param) || ''}`).join('|');
@@ -32,9 +31,6 @@ interface SortOptions {
   [key: string]: "asc" | "desc";
 }
 
-// ===================================================================
-// GET /api/products - Get all products with filters, sorting, and pagination
-// ===================================================================
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -75,7 +71,6 @@ export async function GET(req: NextRequest) {
       isAvailable: true,
     };
 
-    // Add search term to filter (searches name)
     if (search) {
       filter.name = { $regex: search, $options: "i" };
     }
@@ -84,7 +79,6 @@ export async function GET(req: NextRequest) {
       filter.category = category;
     }
 
-    // Add location to filter (searches both city and state for flexibility)
     if (location) {
       filter.$or = [
         { "farmLocation.city": { $regex: location, $options: "i" } },
@@ -156,9 +150,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ===================================================================
-// POST /api/products - Create a new product (farmers only)
-// ===================================================================
+
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
@@ -207,11 +199,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create a new product instance, assigning the authenticated farmer's ID
     const product = new Product({
       ...productData,
-      // *** THIS IS THE FIX ***
-      // Use user.sub, which is the standard JWT claim for the user's ID
       farmer: user,
     });
 

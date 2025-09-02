@@ -10,7 +10,6 @@ import {
   Truck,
   XCircle,
   ArrowLeft,
-  Calendar,
   DollarSign,
   MapPin,
   User,
@@ -328,19 +327,19 @@ export default function OrderDetailPage() {
                 {getStatusIcon(order.status)}
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    statusConfig[order.status].bgColor
-                  } ${statusConfig[order.status].color}`}
+                    statusConfig[order.status]?.bgColor || 'bg-gray-100'
+                  } ${statusConfig[order.status]?.color || 'text-gray-600'}`}
                 >
-                  {statusConfig[order.status].label}
+                  {statusConfig[order.status]?.label || order.status}
                 </span>
               </div>
 
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  paymentStatusConfig[order.paymentStatus].bgColor
-                } ${paymentStatusConfig[order.paymentStatus].color}`}
+                  paymentStatusConfig[order.paymentStatus]?.bgColor || 'bg-gray-100'
+                } ${paymentStatusConfig[order.paymentStatus]?.color || 'text-gray-600'}`}
               >
-                {paymentStatusConfig[order.paymentStatus].label}
+                {paymentStatusConfig[order.paymentStatus]?.label || order.paymentStatus}
               </span>
             </div>
           </div>

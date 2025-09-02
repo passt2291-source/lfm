@@ -367,15 +367,15 @@ export default function OrdersPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center space-x-4">
                         <div
-                          className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-medium ${currentStatusConfig.bgColor} ${currentStatusConfig.color}`}
+                          className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-medium ${currentStatusConfig?.bgColor || 'bg-gray-100'} ${currentStatusConfig?.color || 'text-gray-600'}`}
                         >
                           {getStatusIcon(order.status)}{" "}
-                          {currentStatusConfig.label}
+                          {currentStatusConfig?.label || order.status}
                         </div>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${currentPaymentStatusConfig.bgColor} ${currentPaymentStatusConfig.color}`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${currentPaymentStatusConfig?.bgColor || 'bg-gray-100'} ${currentPaymentStatusConfig?.color || 'text-gray-600'}`}
                         >
-                          {currentPaymentStatusConfig.label}
+                          {currentPaymentStatusConfig?.label || order.paymentStatus}
                         </span>
                       </div>
                       <div className="mt-2 sm:mt-0 flex items-center space-x-4 text-sm text-gray-500">

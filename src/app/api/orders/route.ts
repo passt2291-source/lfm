@@ -108,8 +108,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// --- POST /api/orders (Unchanged) ---
-// Creates a new order, notifications, payment intent, and real-time event.
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();

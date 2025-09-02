@@ -14,7 +14,6 @@ interface PopulatedOrderItem {
 }
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY!);
 
-// GET /api/orders/[orderId]
 export async function GET(
   req: NextRequest,
   { params }: { params: { orderId: string } }
@@ -70,7 +69,6 @@ export async function GET(
   }
 }
 
-// PUT /api/orders/[orderId]
 export async function PUT(
   req: NextRequest,
   { params }: { params: { orderId: string } }

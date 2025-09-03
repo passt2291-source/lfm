@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, Check } from "lucide-react";
 import toast from "react-hot-toast";
-// import { INotification } from "@/models/Notification";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
@@ -89,8 +88,22 @@ const NotificationBell = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
-      console.error("Failed to mark notification as read", error);
-      // Revert UI on failure if needed
+      console.error("Failed to mark notification as read", error)
+      fetchNotifications();
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      setNotifications(notifications.map((n) => ({ ...n, read: true })));
+
+      const token = localStorage.getItem("token");
+      await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (error) {
+      console.error("Failed to mark all notifications as read", error);
       fetchNotifications();
     }
   };
@@ -111,7 +124,17 @@ const NotificationBell = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50">
-          <div className="p-4 font-bold border-b">Notifications</div>
+          <div className="p-4 font-bold border-b flex justify-between items-center">
+            <span>Notifications</span>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="text-xs text-primary-600 font-semibold hover:underline"
+              >
+                Mark All as Read
+              </button>
+            )}
+          </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <p className="text-center text-gray-500 py-4">

@@ -29,3 +29,29 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const token = req.headers.get("authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    await dbConnect();
+
+    await Notification.updateMany(
+      { user: decoded.userId, read: false },
+      { read: true }
+    );
+
+    return NextResponse.json({ message: "All notifications marked as read" });
+  } catch (error) {
+    console.error("Mark all notifications as read error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
